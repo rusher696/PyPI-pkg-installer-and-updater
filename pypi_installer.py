@@ -34,16 +34,22 @@ def download_pypi_sdist(pkgname, version=None, unzip=True, untar=True, extract_t
     if file_name.endswith(".zip") and unzip:
         with zipfile.ZipFile(file_path, "r") as zip_ref:
             unzipname = os.path.join(target_dir, os.path.splitext(os.path.basename(file_name))[0])
-            zip_ref.extractall(unzipname)
+            for member in zip_ref.infolist():
+                zip_ref.extract(member, unzipname)
+                if verbose:
+                  print(f"Unpacked: {member.filename}")
+
             
     elif file_name.endswith((".tgz", ".tar.gz")) and untar:
         with tarfile.open(file_path, "r:gz") as tgz_ref:
-             untgzname = os.path.join(target_dir, os.path.splitext(os.path.splitext(os.path.basename(file_name))[0])[0])
-             tgz_ref.extractall(untgzname, filter="data")
+            untgzname = os.path.join(target_dir, os.path.splitext(os.path.splitext(os.path.basename(file_name))[0])[0])
+            for member in tgz_ref.getmembers():
+                if member.isfile():
+                    tgz_ref.extract(member, untgzname, set_attrs=True)
+                    if verbose:
+                        print(f"Unpacked: {member.name}")
+
              
     if verbose:
         print(f"Download complete! File saved at: {file_path}")
     return file_path
-
-# Example usage
-download_pypi_sdist("numpy", unzip=True, untar=True)

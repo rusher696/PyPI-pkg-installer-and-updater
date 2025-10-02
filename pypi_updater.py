@@ -48,4 +48,3 @@ def update_all(packages=None, logs=False, checklogs=False):
         except Exception as e:
             if logs: print(f"Error: {e}")        
             
-update_all("numpy", logs=True, checklogs=True)
